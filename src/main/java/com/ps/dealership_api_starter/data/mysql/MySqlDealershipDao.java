@@ -53,6 +53,8 @@ public class MySqlDealershipDao extends MySqlDaoBase implements DealershipDao {
         return dealerships;
     }
 
+
+
     @Override
     public Dealership getById(int dealershipId)
     {
