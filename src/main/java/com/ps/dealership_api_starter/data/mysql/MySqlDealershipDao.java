@@ -14,6 +14,7 @@ import java.util.List;
 
 @Component
 public class MySqlDealershipDao extends MySqlDaoBase implements DealershipDao {
+
     public MySqlDealershipDao(DataSource dataSource)
     {
         super(dataSource);

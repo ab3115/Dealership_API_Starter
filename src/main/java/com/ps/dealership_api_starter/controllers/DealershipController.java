@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("dealerships")
 @CrossOrigin
+
 public class DealershipController
 {
     private DealershipDao dealershipDao;
