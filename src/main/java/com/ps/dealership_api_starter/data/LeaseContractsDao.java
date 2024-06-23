@@ -1,4 +1,4 @@
 package com.ps.dealership_api_starter.data;
 
-public interface VehicleDAO {
+public interface LeaseContractsDao {
 }
