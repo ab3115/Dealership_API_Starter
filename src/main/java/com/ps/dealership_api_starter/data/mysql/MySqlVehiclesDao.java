@@ -150,7 +150,7 @@ public class MySqlVehiclesDao extends MySqlDaoBase implements VehiclesDAO {
 
 
 
-    private Vehicle getByVin(int vin) {
+    public Vehicle getByVin(int vin) {
         String sql = "SELECT * FROM vehicles WHERE vin = ?";
 
         try (

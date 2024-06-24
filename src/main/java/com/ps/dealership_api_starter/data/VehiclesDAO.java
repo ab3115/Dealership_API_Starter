@@ -19,6 +19,7 @@ public interface VehiclesDAO {
             String vehicleType
     );
 
+    Vehicle getByVin(int vin);
 
     Vehicle create(Vehicle vehicle);
 
