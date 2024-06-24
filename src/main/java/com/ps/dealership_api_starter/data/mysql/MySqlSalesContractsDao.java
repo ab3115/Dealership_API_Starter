@@ -17,7 +17,7 @@ public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContrac
 
     @Override
     public SalesContract getSalesContract(int Id) {
-        String sql = "SELECT * FROM dealerships WHERE sales_contract = ?";
+        String sql = "SELECT * FROM salesContracts WHERE sales_contract = ?";
         try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, Id);
@@ -37,15 +37,22 @@ public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContrac
     @Override
     public SalesContract create(SalesContract salesContract) {
 
-        String sql = "INSERT INTO dealerships(name, address, phone) " +
+        String sql = "INSERT INTO sales_contracts(contractId, address, phone) " +
                 " VALUES (?, ?, ?);";
 
         try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            statement.setString(1, dealership.getName());
-            statement.setString(2, dealership.getAddress());
-            statement.setString(3, dealership.getPhone());
-
+            statement.setInt(1, salesContract.getContractId());
+            statement.setString(2, salesContract.getContractDate());
+            statement.setString(3, salesContract.getCustomerName());
+            statement.setString(4, salesContract.getCustomerEmail());
+            statement.setInt(5, salesContract.getVin());
+            statement.setDouble(6, salesContract.getSalesTax());
+            statement.setDouble(7,salesContract.getRecordingFee());
+            statement.setDouble(8, salesContract.getProcessingFee());
+            statement.setDouble(9, salesContract.getTotalPrice());
+            statement.setString(10, salesContract.getFinanceOption());
+            statement.setDouble(11,salesContract.getMonthlyPayment());
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected > 0) {
@@ -68,7 +75,8 @@ public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContrac
     }
 
 
-        protected static SalesContract mapRow (ResultSet row) throws SQLException
+
+    protected static SalesContract mapRow (ResultSet row) throws SQLException
         {
             int contractId = row.getInt("contractId");
             String contractDate = row.getString("contractDate");
