@@ -3,6 +3,7 @@ package com.ps.dealership_api_starter.data.mysql;
 import com.ps.dealership_api_starter.data.SalesContractsDao;
 import com.ps.dealership_api_starter.models.Dealership;
 import com.ps.dealership_api_starter.models.SalesContract;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -10,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Component
 public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContractsDao {
     public MySqlSalesContractsDao(DataSource dataSource) {
         super(dataSource);
@@ -37,7 +39,7 @@ public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContrac
     @Override
     public SalesContract create(SalesContract salesContract) {
 
-        String sql = "INSERT INTO sales_contracts(contractId, address, phone) " +
+        String sql = "INSERT INTO sales_contracts(contractId, contract_date, customer_name, customer_email, vin,sales_tax,recording_fee,processing_fee,total_price,finance_option,monthly_payment) " +
                 " VALUES (?, ?, ?);";
 
         try (Connection connection = getConnection()) {
@@ -56,15 +58,14 @@ public class MySqlSalesContractsDao extends MySqlDaoBase implements SalesContrac
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Retrieve the generated keys
+
                 ResultSet generatedKeys = statement.getGeneratedKeys();
 
                 if (generatedKeys.next()) {
-                    // Retrieve the auto-incremented ID
-                    int dealershipId = generatedKeys.getInt(1);
 
-                    // get the newly inserted category
-                    return getById(dealershipId);
+                    int salesContract= generatedKeys.getInt(1);
+
+                    return getBySalesContract(Id);
                 }
             }
         } catch (SQLException e) {

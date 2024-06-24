@@ -6,5 +6,5 @@ public interface LeaseContractsDao {
 
     LeaseContract getLeaseContract(int id);
 
-    LeaseContract create(int id);
+    LeaseContract create(LeaseContract leaseContract);
 }
