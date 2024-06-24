@@ -112,17 +112,117 @@ public class MySqlVehiclesDao extends MySqlDaoBase implements VehiclesDAO {
 
     @Override
     public Vehicle create(Vehicle vehicle) {
+
+        String sql = "INSERT INTO vehicles(vin, year, make, model, vehicle_type, color, odometer, price, sold) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+        try (
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        ) {
+            preparedStatement.setInt(1, vehicle.getVin());
+            preparedStatement.setInt(2, vehicle.getYear());
+            preparedStatement.setString(3, vehicle.getMake());
+            preparedStatement.setString(4, vehicle.getModel());
+            preparedStatement.setString(5, vehicle.getVehicleType());
+            preparedStatement.setString(6, vehicle.getColor());
+            preparedStatement.setInt(7, vehicle.getOdometer());
+            preparedStatement.setDouble(8, vehicle.getPrice());
+            preparedStatement.setBoolean(9, vehicle.isSold());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys();) {
+                    if (generatedKeys.next()) {
+                        int vin = generatedKeys.getInt(1);
+
+                        return getByVin(vin);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
+
+
+    private Vehicle getByVin(int vin) {
+        String sql = "SELECT * FROM vehicles WHERE vin = ?";
+
+        try (
+                Connection connection = getConnection();
+                PreparedStatement  preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setInt(1, vin);
+
+            try (ResultSet row =  preparedStatement.executeQuery()) {
+                if (row.next()) {
+                    return mapRow(row);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+
+
     @Override
     public void update(int vin, Vehicle vehicle) {
+        String sql = "UPDATE vehicles" +
+                " SET year = ? " +
+                "   , make = ? " +
+                "   , model = ? " +
+                "   , vehicle_type = ? " +
+                "   , color = ? " +
+                "   , odometer = ? " +
+                "   , price = ? " +
+                "   , sold = ? " +
+                " WHERE vin = ?;";
 
+        try (
+                Connection connection = getConnection();
+                PreparedStatement  preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        ) {
+            preparedStatement.setInt(1, vehicle.getYear());
+            preparedStatement.setString(2, vehicle.getMake());
+            preparedStatement.setString(3, vehicle.getModel());
+            preparedStatement.setString(4, vehicle.getVehicleType());
+            preparedStatement.setString(5, vehicle.getColor());
+            preparedStatement.setInt(6, vehicle.getOdometer());
+            preparedStatement.setDouble(7, vehicle.getPrice());
+            preparedStatement.setBoolean(8, vehicle.isSold());
+            preparedStatement.setInt(9, vehicle.getVin());
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void delete(int vin) {
+        String sql = "DELETE FROM vehicles " +
+                " WHERE vin = ?;";
 
+        try (
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setInt(1, vin);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
     protected static Vehicle mapRow(ResultSet row) throws SQLException {
         int     vin         = row.getInt("vin");
