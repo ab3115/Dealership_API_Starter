@@ -23,6 +23,8 @@ public class DealershipController
         this.dealershipDao = dealershipDao;
     }
 
+
+
     @GetMapping("")
     public List<Dealership> search(@RequestParam(name="name", required = false) String name,
                                    @RequestParam(name="phone", required = false) String phone

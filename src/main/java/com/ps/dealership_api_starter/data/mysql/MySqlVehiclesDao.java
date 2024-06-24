@@ -1,4 +1,141 @@
 package com.ps.dealership_api_starter.data.mysql;
 
-public class MySqlVehiclesDao {
+import com.ps.dealership_api_starter.data.VehiclesDAO;
+import com.ps.dealership_api_starter.models.Dealership;
+import com.ps.dealership_api_starter.models.Vehicle;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+import static com.ps.dealership_api_starter.data.mysql.MySqlDealershipDao.mapRow;
+
+@Component
+public class MySqlVehiclesDao extends MySqlDaoBase implements VehiclesDAO {
+    public MySqlVehiclesDao(DataSource dataSource) {
+        super(dataSource);
+    }
+
+    @Override
+    public List<Vehicle> getAllVehicles(
+            double minPrice,
+            double maxPrice,
+            String make,
+            String model,
+            int minYear,
+            int maxYear,
+            String color,
+            int minMiles,
+            int maxMiles,
+            String vehicleType
+    ) {
+        List<Vehicle> vehicles = new ArrayList<>();
+
+        String sql = "SELECT * FROM vehicles " +
+                "WHERE price BETWEEN ? AND ? AND " +
+                "make LIKE ? AND " +
+                "model LIKE ? AND " +
+                "year BETWEEN ? AND ? AND " +
+                "color LIKE ? AND " +
+                "odometer BETWEEN ? AND ? AND " +
+                "vehicle_type LIKE ?";
+
+        double minPriceToSearch = minPrice == 0 ? getMinPrice() : minPrice;
+        double maxPriceToSearch = maxPrice == 0 ? getMaxPrice() : maxPrice; // Whether you intentionally put 0 or not, it'll always be the max price.
+        String makeToSearch     = make == null ? "%" : make;
+        String modelToSearch    = model == null ? "%" : model;
+        int    minYearToSearch  = minYear == 0 ? getMinYear() : minYear;
+        int    maxYearToSearch  = maxYear == 0 ? getMaxYear() : maxYear;
+        String colorToSearch    = color == null ? "%" : color;
+        int    minMilesToSearch = minMiles == 0 ? getMinMiles() : minMiles;
+        int    maxMilesToSearch = maxMiles == 0 ? getMaxMiles() : maxMiles;
+        String typeToSearch     = vehicleType == null ? "%" : vehicleType;
+
+        try (
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setDouble(1, minPriceToSearch);
+            preparedStatement.setDouble(2, maxPriceToSearch);
+            preparedStatement.setString(3, "%" + makeToSearch + "%");
+            preparedStatement.setString(4, "%" + modelToSearch + "%");
+            preparedStatement.setInt(5, minYearToSearch);
+            preparedStatement.setInt(6, maxYearToSearch);
+            preparedStatement.setString(7, "%" + colorToSearch + "%");
+            preparedStatement.setInt(8, minMilesToSearch);
+            preparedStatement.setInt(9, maxMilesToSearch);
+            preparedStatement.setString(10, "%" + typeToSearch + "%");
+
+            try (ResultSet row = preparedStatement.executeQuery();) {
+                while (row.next()) {
+                    Vehicle vehicle = mapRow(row);
+                    vehicles.add(vehicle);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        return vehicles;
+    }
+
+    private int getMaxMiles() {
+        return 0;
+    }
+
+    private int getMinMiles() {
+        return 0;
+    }
+
+    private int getMaxYear() {
+        return 0;
+    }
+
+    private int getMinYear() {
+        return 0;
+    }
+
+    private double getMaxPrice() {
+        return 0;
+    }
+
+    private double getMinPrice() {
+        return 0;
+    }
+
+
+    @Override
+    public Vehicle create(Vehicle vehicle) {
+        return null;
+    }
+
+    @Override
+    public void update(int vin, Vehicle vehicle) {
+
+    }
+
+    @Override
+    public void delete(int vin) {
+
+    }
+    protected static Vehicle mapRow(ResultSet row) throws SQLException {
+        int     vin         = row.getInt("vin");
+        int     year        = row.getInt("year");
+        String  make        = row.getString("make");
+        String  model       = row.getString("model");
+        String  vehicleType = row.getString("vehicle_type");
+        String  color       = row.getString("color");
+        int     odometer    = row.getInt("odometer");
+        double  price       = row.getDouble("price");
+        boolean sold        = row.getBoolean("sold");
+
+        return new Vehicle(vin, year, make, model, vehicleType, color, odometer, price, sold);
+    }
+
 }

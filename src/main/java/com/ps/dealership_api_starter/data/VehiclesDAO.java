@@ -1,5 +1,6 @@
 package com.ps.dealership_api_starter.data;
 
+import com.ps.dealership_api_starter.models.Dealership;
 import com.ps.dealership_api_starter.models.Vehicle;
 import java.util.List;
 
@@ -18,7 +19,6 @@ public interface VehiclesDAO {
             String vehicleType
     );
 
-    Vehicle getByVin(int vin);
 
     Vehicle create(Vehicle vehicle);
 
